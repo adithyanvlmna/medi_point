@@ -225,6 +225,49 @@ class _RegisterViewState extends State<RegisterView> {
                       ),
                     ],
                   ),
+                 CommonButton(
+  onTap: () async {
+    final provider = Provider.of<RegisterProvider>(context, listen: false);
+
+    final treatments = [
+      {
+        'name': provider.selectedTreatment?.name ?? 'Massage',
+        'price':  500,
+        'male': provider.maleCount,
+        'female': provider.femaleCount,
+      },
+    ];
+
+    try {
+      await provider.generateReceiptPdf(
+        name: provider.nameController.text.isNotEmpty
+            ? provider.nameController.text
+            : 'John Doe',
+        address: provider.addressController.text.isNotEmpty
+            ? provider.addressController.text
+            : 'Unknown Address',
+        whatsapp: provider.wNumberController.text.isNotEmpty
+            ? provider.wNumberController.text
+            : '0000000000',
+        bookedOn: DateTime.now(),
+        treatmentDate: provider.tDateController.text.isNotEmpty
+            ? provider.tDateController.text
+            :formatDate(DateTime.now(),),
+        treatmentTime:
+            "${provider.selectedHour ?? '--'}:${provider.selectedMinute ?? '--'}",
+        treatments: treatments,
+        discount: int.tryParse(provider.discountController.text) ?? 0,
+        advance: int.tryParse(provider.advAmountController.text) ?? 0,
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Failed to generate PDF: $e')),
+      );
+    }
+  },
+  text: "Save",
+),
+
                 ],
               ),
             );
@@ -342,6 +385,7 @@ class _RegisterViewState extends State<RegisterView> {
                       CommonButton(
                         text: "Save",
                         onTap: () {
+                          
                           Navigator.pop(context);
                         },
                       ),

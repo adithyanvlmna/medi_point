@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:medipoint_machine_test/core/app_theme/app_colors.dart';
 import 'package:medipoint_machine_test/core/app_theme/app_text_styles.dart';
 import 'package:medipoint_machine_test/core/utils/app_size.dart';
+import 'package:medipoint_machine_test/core/utils/app_validator.dart';
 import 'package:medipoint_machine_test/core/utils/date_time_convert.dart';
 import 'package:medipoint_machine_test/core/utils/internet_checker.dart';
 import 'package:medipoint_machine_test/model/treatment_model.dart';
@@ -11,6 +12,7 @@ import 'package:medipoint_machine_test/widgets/common_button.dart';
 import 'package:medipoint_machine_test/widgets/common_dropdown_field.dart';
 import 'package:medipoint_machine_test/widgets/common_textfield.dart';
 import 'package:medipoint_machine_test/widgets/custom_treatment_card.dart';
+import 'package:medipoint_machine_test/widgets/multi_select_dropdown.dart';
 import 'package:provider/provider.dart';
 
 class RegisterView extends StatefulWidget {
@@ -48,227 +50,294 @@ class _RegisterViewState extends State<RegisterView> {
           builder: (context, value, child) {
             return Padding(
               padding: const EdgeInsets.all(14.0),
-              child: ListView(
-                children: [
-                  Text("Register", style: AppTextStyles.primaryText),
-                  commonSizedBox(30),
-                  Text("Name", style: AppTextStyles.secondaryGreyText),
-                  commonSizedBox(10),
-                  CommonTextField(
-                    controller: value.nameController,
-                    hintText: "Enter your full name",
-                  ),
-                  commonSizedBox(20),
-                  Text(
-                    "Whatsapp Number",
-                    style: AppTextStyles.secondaryGreyText,
-                  ),
-                  commonSizedBox(10),
-                  CommonTextField(
-                    keyboardType: TextInputType.phone,
-                    controller: value.wNumberController,
-                    hintText: "Enter your Whatsapp number",
-                  ),
-                  commonSizedBox(20),
-                  Text("Addres", style: AppTextStyles.secondaryGreyText),
-                  commonSizedBox(10),
-                  CommonTextField(
-                    controller: value.addressController,
-                    hintText: "Enter your full address",
-                  ),
-                  commonSizedBox(20),
-                  Text("Location", style: AppTextStyles.secondaryGreyText),
-                  CommonDropdown(
-                    items: value.keralaLocations,
-                    value: value.selectedLocation,
-                    onChanged: (val) {
-                      value.setSelectedLocation(val);
-                    },
-                    hintText: "Choose your location",
-                  ),
-                  commonSizedBox(20),
-                  Text("Branch", style: AppTextStyles.secondaryGreyText),
-                  commonSizedBox(10),
-                  CommonDropdown(
-                    items:
-                        value.branchList
-                            .map<String>((branch) => branch['name'].toString())
-                            .toList(),
-                    value: value.selectedBranchName,
-                    onChanged: (val) {
-                      value.setSelectedBranch(val);
-                    },
-                    hintText: "Select the branch",
-                  ),
-                  commonSizedBox(20),
-                  Text("Treatments", style: AppTextStyles.secondaryGreyText),
-                  commonSizedBox(10),
-                  TreatmentCard(
-                    title: "",
-                    maleCount: value.maleCount,
-                    femaleCount: value.femaleCount,
-                    onEdit: () {
-                      showBottomSheet(context);
-                    },
-                    onDelete: () {
-                      value.onButtonClear();
-                    },
-                  ),
-                  commonSizedBox(10),
-                  CommonButton(
-                    onTap: () {
-                      showBottomSheet(context);
-                    },
-                    text: "+ Add Treatments",
-                    iscolor: true,
-                  ),
+              child: Form(
+                key: value.formKey,
+                child: ListView(
+                  children: [
+                    Text("Register", style: AppTextStyles.primaryText),
+                    commonSizedBox(30),
 
-                  commonSizedBox(20),
-                  Text("Total Amount", style: AppTextStyles.secondaryGreyText),
-                  commonSizedBox(10),
-                  CommonTextField(
-                    controller: value.totalController,
-                    hintText: "Enter total amount",
-                  ),
-                  commonSizedBox(20),
-                  Text(
-                    "Discount Amount",
-                    style: AppTextStyles.secondaryGreyText,
-                  ),
-                  commonSizedBox(10),
-                  CommonTextField(
-                    controller: value.discountController,
-                    hintText: "Enter discount amount",
-                  ),
-                  commonSizedBox(20),
-                  Text(
-                    "Payment option",
-                    style: AppTextStyles.secondaryGreyText,
-                  ),
-                  commonSizedBox(10),
-                  Row(
-                    spacing: 5,
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      customRadio("Cash"),
-                      Text("Cash", style: AppTextStyles.secondaryGreyText),
-                      Spacer(),
-                      customRadio("Card"),
-                      Text("Card", style: AppTextStyles.secondaryGreyText),
-                      Spacer(),
-                      customRadio("UPI"),
-                      Text("UPI", style: AppTextStyles.secondaryGreyText),
-                    ],
-                  ),
-                  commonSizedBox(20),
-                  Text(
-                    "Advance Amount",
-                    style: AppTextStyles.secondaryGreyText,
-                  ),
-                  commonSizedBox(10),
-                  CommonTextField(
-                    controller: value.advAmountController,
-                    hintText: "Enter advance amount",
-                  ),
-                  commonSizedBox(20),
-                  Text(
-                    "Balance Amount",
-                    style: AppTextStyles.secondaryGreyText,
-                  ),
-                  commonSizedBox(10),
-                  CommonTextField(
-                    controller: value.bAmountController,
-                    hintText: "Enter balance amount",
-                  ),
-                  commonSizedBox(20),
-                  Text(
-                    "Treatment Date",
-                    style: AppTextStyles.secondaryGreyText,
-                  ),
-                  commonSizedBox(10),
-                  CommonTextField(
-                    controller: value.tDateController,
-                    hintText: "",
-                    suffixIcon: Icons.calendar_month_rounded,
-                    isSufix: true,
-                    onSuffixTap: () async {
-                      final pick = await _selectDate(context);
-                      if (pick != null) {
-                        value.tDateController.text = formatDate(pick);
-                      }
-                    },
-                  ),
-                  commonSizedBox(20),
-                  Text(
-                    "Treatment Time",
-                    style: AppTextStyles.secondaryGreyText,
-                  ),
-                  commonSizedBox(10),
-                  Row(
-                    spacing: 10,
-                    children: [
-                      Expanded(
-                        child: CommonDropdown(
-                          items: value.hours12,
-                          value: value.selectedHour,
-                          onChanged: (val) => value.setSelectedHour(val),
-                          hintText: "Hour",
+                    Text("Name", style: AppTextStyles.secondaryGreyText),
+                    commonSizedBox(10),
+                    CommonTextField(
+                      validator: (p0) => validateField("Name", p0),
+                      controller: value.nameController,
+                      hintText: "Enter your full name",
+                    ),
+                    commonSizedBox(20),
+
+                    Text(
+                      "Whatsapp Number",
+                      style: AppTextStyles.secondaryGreyText,
+                    ),
+                    commonSizedBox(10),
+                    CommonTextField(
+                      validator: (p0) => validateField("Phone", p0),
+                      keyboardType: TextInputType.phone,
+                      controller: value.wNumberController,
+                      hintText: "Enter your Whatsapp number",
+                    ),
+                    commonSizedBox(20),
+
+                    Text("Address", style: AppTextStyles.secondaryGreyText),
+                    commonSizedBox(10),
+                    CommonTextField(
+                      validator: (p0) => validateField("Address", p0),
+                      controller: value.addressController,
+                      hintText: "Enter your full address",
+                    ),
+                    commonSizedBox(20),
+
+                    Text("Location", style: AppTextStyles.secondaryGreyText),
+                    CommonDropdown(
+                      items: value.keralaLocations,
+                      value: value.selectedLocation,
+                      onChanged: (val) {
+                        value.setSelectedLocation(val);
+                      },
+                      hintText: "Choose your location",
+                      validator:
+                          (val) =>
+                              val == null ? "Please select a location" : null,
+                    ),
+                    commonSizedBox(20),
+
+                    Text("Branch", style: AppTextStyles.secondaryGreyText),
+                    commonSizedBox(10),
+                    CommonDropdown(
+                      items:
+                          value.branchList
+                              .map<String>(
+                                (branch) => branch['name'].toString(),
+                              )
+                              .toList(),
+                      value: value.selectedBranchName,
+                      onChanged: (val) {
+                        value.setSelectedBranch(val);
+                      },
+                      hintText: "Select the branch",
+                      validator:
+                          (val) =>
+                              val == null ? "Please select a branch" : null,
+                    ),
+                    commonSizedBox(20),
+
+                    Text("Treatments", style: AppTextStyles.secondaryGreyText),
+                    commonSizedBox(10),
+                    TreatmentCard(
+                      title: value.selectedValue ?? "",
+                      maleCount: value.maleCount,
+                      femaleCount: value.femaleCount,
+                      onEdit: () {
+                        showBottomSheet(context);
+                      },
+                      onDelete: () {
+                        value.onButtonClear();
+                      },
+                    ),
+                    commonSizedBox(10),
+                    CommonButton(
+                      onTap: () {
+                        showBottomSheet(context);
+                      },
+                      text: "+ Add Treatments",
+                      iscolor: true,
+                    ),
+                    commonSizedBox(20),
+
+                    Text(
+                      "Total Amount",
+                      style: AppTextStyles.secondaryGreyText,
+                    ),
+                    commonSizedBox(10),
+                    CommonTextField(
+                      validator: (p0) => validateField("Total Amount", p0),
+                      controller: value.totalController,
+                      hintText: "Enter total amount",
+                    ),
+                    commonSizedBox(20),
+
+                    Text(
+                      "Discount Amount",
+                      style: AppTextStyles.secondaryGreyText,
+                    ),
+                    commonSizedBox(10),
+                    CommonTextField(
+                      validator: (p0) => validateField("Discount Amount", p0),
+                      controller: value.discountController,
+                      hintText: "Enter discount amount",
+                    ),
+                    commonSizedBox(20),
+
+                    Text(
+                      "Payment option",
+                      style: AppTextStyles.secondaryGreyText,
+                    ),
+                    commonSizedBox(10),
+                    Row(
+                      spacing: 5,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        customRadio("Cash"),
+                        Text("Cash", style: AppTextStyles.secondaryGreyText),
+                        Spacer(),
+                        customRadio("Card"),
+                        Text("Card", style: AppTextStyles.secondaryGreyText),
+                        Spacer(),
+                        customRadio("UPI"),
+                        Text("UPI", style: AppTextStyles.secondaryGreyText),
+                      ],
+                    ),
+                    if (value.paymentType.isEmpty)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 5),
+                        child: Text(
+                          "Please select a payment option",
+                          style: TextStyle(color: Colors.red, fontSize: 12),
                         ),
                       ),
-                      Expanded(
-                        child: CommonDropdown(
-                          items: value.minutesList,
-                          value: value.selectedMinute,
-                          onChanged: (val) => value.setSelectedMinute(val),
-                          hintText: "Minutes",
+                    commonSizedBox(20),
+
+                    Text(
+                      "Advance Amount",
+                      style: AppTextStyles.secondaryGreyText,
+                    ),
+                    commonSizedBox(10),
+                    CommonTextField(
+                      validator: (p0) => validateField("Advance Amount", p0),
+                      controller: value.advAmountController,
+                      hintText: "Enter advance amount",
+                    ),
+                    commonSizedBox(20),
+
+                    Text(
+                      "Balance Amount",
+                      style: AppTextStyles.secondaryGreyText,
+                    ),
+                    commonSizedBox(10),
+                    CommonTextField(
+                      validator: (p0) => validateField("Balance Amount", p0),
+                      controller: value.bAmountController,
+                      hintText: "Enter balance amount",
+                    ),
+                    commonSizedBox(20),
+
+                    Text(
+                      "Treatment Date",
+                      style: AppTextStyles.secondaryGreyText,
+                    ),
+                    commonSizedBox(10),
+                    CommonTextField(
+                      validator: (p0) => validateField("Treatment Date", p0),
+                      controller: value.tDateController,
+                      hintText: "",
+                      suffixIcon: Icons.calendar_month_rounded,
+                      isSufix: true,
+                      onSuffixTap: () async {
+                        final pick = await _selectDate(context);
+                        if (pick != null) {
+                          value.tDateController.text = formatDate(pick);
+                        }
+                      },
+                    ),
+                    commonSizedBox(20),
+
+                    Text(
+                      "Treatment Time",
+                      style: AppTextStyles.secondaryGreyText,
+                    ),
+                    commonSizedBox(10),
+                    Row(
+                      spacing: 10,
+                      children: [
+                        Expanded(
+                          child: CommonDropdown(
+                            items: value.hours12,
+                            value: value.selectedHour,
+                            onChanged: (val) => value.setSelectedHour(val),
+                            hintText: "Hour",
+                            validator:
+                                (val) => val == null ? "Select hour" : null,
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                 CommonButton(
-  onTap: () async {
-    final provider = Provider.of<RegisterProvider>(context, listen: false);
+                        Expanded(
+                          child: CommonDropdown(
+                            items: value.minutesList,
+                            value: value.selectedMinute,
+                            onChanged: (val) => value.setSelectedMinute(val),
+                            hintText: "Minutes",
+                            validator:
+                                (val) => val == null ? "Select minute" : null,
+                          ),
+                        ),
+                      ],
+                    ),
 
-    final treatments = [
-      {
-        'name': provider.selectedTreatment?.name ?? 'Massage',
-        'price':  500,
-        'male': provider.maleCount,
-        'female': provider.femaleCount,
-      },
-    ];
+                    commonSizedBox(10),
+                    CommonButton(
+                      onTap: () async {
+                        // value.updatePatient();
+                     if(value.formKey.currentState!.validate()){
+                         final provider = Provider.of<RegisterProvider>(
+                          context,
+                          listen: false,
+                        );
 
-    try {
-      await provider.generateReceiptPdf(
-        name: provider.nameController.text.isNotEmpty
-            ? provider.nameController.text
-            : 'John Doe',
-        address: provider.addressController.text.isNotEmpty
-            ? provider.addressController.text
-            : 'Unknown Address',
-        whatsapp: provider.wNumberController.text.isNotEmpty
-            ? provider.wNumberController.text
-            : '0000000000',
-        bookedOn: DateTime.now(),
-        treatmentDate: provider.tDateController.text.isNotEmpty
-            ? provider.tDateController.text
-            :formatDate(DateTime.now(),),
-        treatmentTime:
-            "${provider.selectedHour ?? '--'}:${provider.selectedMinute ?? '--'}",
-        treatments: treatments,
-        discount: int.tryParse(provider.discountController.text) ?? 0,
-        advance: int.tryParse(provider.advAmountController.text) ?? 0,
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to generate PDF: $e')),
-      );
-    }
-  },
-  text: "Save",
-),
+                        final treatments = [
+                          {
+                            'name': 'Massage',
+                            'price': 500,
+                            'male': provider.maleCount,
+                            'female': provider.femaleCount,
+                          },
+                        ];
 
-                ],
+                        try {
+                          await provider.generateReceiptPdf(
+                            name:
+                                provider.nameController.text.isNotEmpty
+                                    ? provider.nameController.text
+                                    : 'John Doe',
+                            address:
+                                provider.addressController.text.isNotEmpty
+                                    ? provider.addressController.text
+                                    : 'Unknown Address',
+                            whatsapp:
+                                provider.wNumberController.text.isNotEmpty
+                                    ? provider.wNumberController.text
+                                    : '0000000000',
+                            bookedOn: DateTime.now(),
+                            treatmentDate:
+                                provider.tDateController.text.isNotEmpty
+                                    ? provider.tDateController.text
+                                    : formatDate(DateTime.now()),
+                            treatmentTime:
+                                "${provider.selectedHour ?? '--'}:${provider.selectedMinute ?? '--'}",
+                            treatments: treatments,
+                            discount:
+                                int.tryParse(
+                                  provider.discountController.text,
+                                ) ??
+                                0,
+                            advance:
+                                int.tryParse(
+                                  provider.advAmountController.text,
+                                ) ??
+                                0,
+                          );
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Failed to generate PDF: $e'),
+                            ),
+                          );
+                        }
+                     }
+                      },
+                      text: "Save",
+                    ),
+                  ],
+                ),
               ),
             );
           },
@@ -324,9 +393,6 @@ class _RegisterViewState extends State<RegisterView> {
       context: context,
       builder: (context) {
         final items = provider.treatmentList.map((e) => e.name).toList();
-        final selectedVal = provider.selectedTreatment?.name;
-        final isValidSelected =
-            selectedVal != null && items.contains(selectedVal);
 
         return Consumer<RegisterProvider>(
           builder: (context, value, child) {
@@ -348,18 +414,17 @@ class _RegisterViewState extends State<RegisterView> {
                         style: AppTextStyles.secondaryGreyText,
                       ),
                       const SizedBox(height: 10),
-                      CommonDropdown(
-                        items: items,
-                        value: isValidSelected ? selectedVal : null,
-                        onChanged: (val) {
-                          final selected = provider.treatmentList.firstWhere(
-                            (element) => element.name == val,
-                            orElse: () => TreatmentModel(id: 0, name: ''),
-                          );
-                          provider.setSelectedTreatment(selected);
+                      CommonMultiSelectDropdown<TreatmentModel>(
+                        items: provider.treatmentList,
+                        selectedItems: provider.selectedTreatments,
+                        getLabel: (item) => item.name,
+                        getId: (item) => item.id,
+                        hintText: "Select Treatments",
+                        onSelectionChanged: (selected) {
+                          provider.updateSelectedTreatments(selected);
                         },
-                        hintText: "Choose preferred treatment",
                       ),
+
                       const SizedBox(height: 20),
                       Text(
                         "Add Patients",
@@ -385,7 +450,11 @@ class _RegisterViewState extends State<RegisterView> {
                       CommonButton(
                         text: "Save",
                         onTap: () {
-                          
+                          value.saveTreatment(
+                            value.maleCount,
+                            value.femaleCount,
+                            value.selectedValue ?? "",
+                          );
                           Navigator.pop(context);
                         },
                       ),

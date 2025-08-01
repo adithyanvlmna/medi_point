@@ -1,8 +1,9 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:medipoint_machine_test/core/app_theme/app_colors.dart';
+
 import 'package:medipoint_machine_test/core/utils/api_urls.dart';
-import 'package:medipoint_machine_test/core/utils/app_size.dart';
+import 'package:medipoint_machine_test/core/utils/date_time_convert.dart';
+
 import 'package:medipoint_machine_test/model/treatment_model.dart';
 import 'package:pdf/pdf.dart';
 import 'package:printing/printing.dart';
@@ -25,7 +26,7 @@ class RegisterProvider extends ChangeNotifier {
   String? _selectedMinute;
   String? get selectedMinute => _selectedMinute;
 
-  String paymentType = "";
+  String paymentType = "Cash";
   String? _selectedLocation;
   String? get selectedLocation => _selectedLocation;
 
@@ -114,12 +115,14 @@ class RegisterProvider extends ChangeNotifier {
   );
   List<dynamic> branchList = [];
   List<TreatmentModel> treatmentList = [];
-  TreatmentModel? selectedTreatment;
-  int? selectedTreatmentId;
+  List<TreatmentModel> selectedTreatments = [];
+  String? selectedValue;
+  String? selectedid;
 
-  void setSelectedTreatment(TreatmentModel? treatment) {
-    selectedTreatment = treatment;
-    selectedTreatmentId = treatment?.id;
+  void saveTreatment(int male, int female, String title) {
+    maleCount = male;
+    femaleCount = female;
+    selectedValue = title;
     notifyListeners();
   }
 
@@ -173,6 +176,13 @@ class RegisterProvider extends ChangeNotifier {
     } else {
       print("Failed to fetch treatments: ${response.body}");
     }
+  }
+
+  void updateSelectedTreatments(List<TreatmentModel> selected) {
+    selectedTreatments = selected;
+    print(selectedTreatments.first.id);
+
+    notifyListeners();
   }
 
   Future<void> getBranchList() async {
@@ -237,6 +247,7 @@ class RegisterProvider extends ChangeNotifier {
   void onButtonClear() {
     maleCount = 0;
     femaleCount = 0;
+    selectedValue = "";
     notifyListeners();
   }
 
@@ -385,14 +396,10 @@ class RegisterProvider extends ChangeNotifier {
                     ),
                     pw.SizedBox(height: 30),
 
-                   
-
                     pw.Table(
                       border: pw.TableBorder(),
                       children: [
                         pw.TableRow(
-                          
-                         
                           children: [
                             pw.Padding(
                               padding: pw.EdgeInsets.all(5),
@@ -493,5 +500,49 @@ class RegisterProvider extends ChangeNotifier {
     await Printing.layoutPdf(
       onLayout: (PdfPageFormat format) async => pdf.save(),
     );
+  }
+
+  Future<void> updatePatient() async {
+    Map<dynamic, dynamic> toJson = {
+      "name": nameController.text.trim(),
+      "payment": paymentType,
+      "phone": wNumberController.text.trim(),
+      "address": wNumberController.text.trim(),
+      "total_amount": double.parse(totalController.text.trim()),
+      "discount_amount": double.parse(discountController.text.trim()),
+      "advance_amount": double.parse(advAmountController.text.trim()),
+      "balance_amount": double.parse(bAmountController.text.trim()),
+      "date_nd_time": formatSelectedDateTimeFromSingle(
+        dateStr: tDateController.text,
+        hourPeriod: selectedHour!,
+        minuteStr: selectedMinute!,
+      ),
+      "id": "",
+      "male": selectedid,
+      "female": selectedid,
+      "branch": selectedBranchName,
+      "treatments": selectedid,
+    };
+    final pref = await SharedPreferences.getInstance();
+    token = pref.getString("token");
+    print("Token from SharedPreferences: $token");
+
+    if (token == null) {
+      print("Token not found.");
+      return;
+    }
+
+    final url = ApiUrls.baseUrl + ApiUrls.patientUpdate;
+    print("Fetching from: $url");
+    final response = await http.post(
+      Uri.parse(url),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer $token',
+      },
+      body: jsonEncode(toJson),
+    );
+    print("Response Status: ${response.statusCode}");
+    print("Response Body: ${response.body}");
   }
 }

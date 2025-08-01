@@ -4,6 +4,8 @@ class ApiUrls {
   static const String loadPatientList = "PatientList";
   static const String loadBranchList = "BranchList";
   static const String loadTreatmentList = "TreatmentList";
+  static const String patientUpdate = "PatientUpdate";
+  
 
   
   

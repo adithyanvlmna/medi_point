@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:medipoint_machine_test/core/utils/api_urls.dart';
 import 'package:http/http.dart' as http;
-import 'package:medipoint_machine_test/core/utils/constants.dart';
 import 'package:medipoint_machine_test/core/utils/enum.dart';
 import 'dart:convert';
 import 'package:medipoint_machine_test/model/dashboard_data_model.dart';

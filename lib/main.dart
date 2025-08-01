@@ -5,9 +5,7 @@ import 'package:medipoint_machine_test/provider/dashboard_provider.dart';
 import 'package:medipoint_machine_test/provider/login_provider.dart';
 import 'package:medipoint_machine_test/provider/register_provider.dart';
 import 'package:medipoint_machine_test/routes.dart';
-import 'package:medipoint_machine_test/view/home_view.dart';
 import 'package:medipoint_machine_test/view/register_view.dart';
-import 'package:medipoint_machine_test/view/splash_view.dart';
 import 'package:provider/provider.dart';
 
 void main() {

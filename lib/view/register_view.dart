@@ -323,7 +323,7 @@ class _RegisterViewState extends State<RegisterView> {
       ),
       context: context,
       builder: (context) {
-        final items = provider.treatmentList.map((e) => e.name ?? '').toList();
+        final items = provider.treatmentList.map((e) => e.name).toList();
         final selectedVal = provider.selectedTreatment?.name;
         final isValidSelected =
             selectedVal != null && items.contains(selectedVal);

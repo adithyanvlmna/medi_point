@@ -5,7 +5,6 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:medipoint_machine_test/core/utils/api_urls.dart';
-import 'package:medipoint_machine_test/core/utils/constants.dart';
 import 'package:medipoint_machine_test/core/utils/snack_bar_helper.dart';
 import 'package:medipoint_machine_test/model/user_model.dart';
 import 'package:medipoint_machine_test/view/home_view.dart';
